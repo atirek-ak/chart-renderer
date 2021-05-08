@@ -8,12 +8,14 @@
    <!-- chart type selection  -->
    <form method="POST" enctype=multipart/form-data action="http://localhost:5000/">
       <div class="form-group" style="margin-left: 20px; margin-right: 20px;">
-         <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" name="select">
+         <select class="form-control" aria-label=".form-select-lg example" name="select">
             <option selected>Select chart type</option>
             <option value="1">Sankey Chart</option>
             <option value="2">Parallel coordinates Chart</option>
             <option value="3">Simple Line Chart</option>
          </select>
+         <br>
+         <input type="text" class="form-control" placeholder="Row limit (enter a valid number)" aria-label="Username" aria-describedby="basic-addon1" name="rowlimit">
          <br>
          <label style="color: #fff" for="customFile">Upload JSON file</label>
          <input type="file" class="form-control" id="file" name="file"/>

@@ -44,7 +44,9 @@ def result():
 	try:
 		if request.method=='POST':
 			select=request.form['select']
+			rowlimit=request.form['rowlimit']
 			print(select)
+			print(rowlimit)
 			if 'file' not in request.files:
 				return render_template("index.html")
 			file = request.files['file']
@@ -53,7 +55,7 @@ def result():
 			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 			print(filename.split('.')[0])
 			render_data(filename)
-			
+
 			return render_template("index.html")
 	except:
 		pass
