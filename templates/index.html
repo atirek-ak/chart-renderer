@@ -3,29 +3,32 @@
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
 
-<!------ Include the above in your HEAD tag ---------->
-
+<!-- left panel -->
 <div class="sidenav">
-         <div class="login-main-text">
-            <h2>Application<br> Login Page</h2>
-            <p>Login or register here to get access.</p>
-         </div>
+   <!-- chart type selection  -->
+   <form method="POST" enctype=multipart/form-data action="http://localhost:5000/">
+      <div class="form-group" style="margin-left: 20px; margin-right: 20px;">
+         <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" name="select">
+            <option selected>Select chart type</option>
+            <option value="1">Sankey Chart</option>
+            <option value="2">Parallel coordinates Chart</option>
+            <option value="3">Simple Line Chart</option>
+         </select>
+         <br>
+         <label style="color: #fff" for="customFile">Upload JSON file</label>
+         <input type="file" class="form-control" id="file" name="file"/>
+         <button type="submit" class="btn btn-dark" value="Upload" style="margin-top: 20px;">Upload</button>
       </div>
-      <div class="main">
-         <div class="col-md-6 col-sm-12">
-            <div class="login-form">
-               <form action="http://localhost:5000/login" method="POST">
-                  <div class="form-group">
-                     <label>User Name</label>
-                     <input type="text" class="form-control" placeholder="User Name" name = "ID">
-                  </div>
-                  <div class="form-group">
-                     <label>Password</label>
-                     <input type="password" class="form-control" placeholder="Password" name = "Password">
-                  </div>
-                  <button type="submit" class="btn btn-black">Login</button>
-                  <button type="submit" class="btn btn-secondary" formaction="http://localhost:5000/sign_up">Register</button>
-               </form>
-            </div>
-         </div>
-      </div>
+   </form>
+
+</div>
+
+
+
+
+<!-- right panel -->
+<div class="main">
+   <div class="col-md-6 col-sm-12">
+      
+   </div>
+</div>

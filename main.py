@@ -38,11 +38,8 @@ def render_welcome():
 def homepage():
 	return render_template('index.html')
 
-@app.route('/returntohome',methods=['POST'])
-def returntohome():
-	return redirect(url_for('homepage'))
 
-@app.route('/login',methods=['POST'])
+@app.route('/',methods=['POST'])
 def result():
 	try:
 		if request.method=='POST':
@@ -69,78 +66,6 @@ def result():
 			con.close()	
 	except:
 		con.rollback()
-
-@app.route('/sign_up',methods=['POST'])
-def Signup():
-	return render_template("signup.html",error=None)
-
-@app.route('/commit_details',methods=['POST'])
-def commit_details():
-	global global_name
-	global global_pass
-	global_name=request.form['Name']
-	global_pass=request.form['Password1']
-	pass2=request.form['Password2']
-	error=None
-	try:
-		con=sql.connect("database.db")
-		cur = con.cursor()
-		val=None
-		cur.execute("SELECT * FROM users WHERE Name = ?", (global_name,))
-		val=cur.fetchone()
-		con.close()
-		if global_name == "users":
-			return render_template("signup.html")
-		elif val!=None:
-			return render_template("signup.html")
-		elif global_pass != pass2:
-			return render_template("signup.html")
-		elif global_pass == "":
-			return render_template("signup.html")
-		elif global_name == "":
-			return render_template("signup.html")	
-		else:
-			con=sql.connect("database.db")
-			cur = con.cursor()	
-			cur.execute("INSERT INTO users (Name,Password)	VALUES (?,?)",(global_name,global_pass))
-			con.commit()
-			con.close()
-			return redirect(url_for('homepage'))		
-	except:
-		con.rollback()	
-
-@app.route('/logout',methods=['POST'])
-def logout():
-	session.pop('username','None')
-	return redirect(url_for('homepage'))
-
-
-@app.route('/upload',methods=['POST'])	
-def upload():
-	if request.method == 'POST':
-		if 'file' not in request.files:
-			flash('No file part')
-			return render_template("welcome.html")
-		file = request.files['file']
-		filename = secure_filename(file.filename)
-		file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-		render_data(filename)
-		data,headers = render_welcome()
-		return render_template("welcome.html",data=data,headers=headers[1:])
-
-def render_data(filename):
-	global global_current_user
-	global global_file_upload
-	global_file_upload = True
-	with open(filename) as f:
-		data = json.load(f)
-	df = pd.DataFrame(data)	
-	conn = sql.connect('database.db')
-	curr=conn.cursor()
-	df.to_sql(global_current_user,conn)
-	conn.commit()
-	conn.close()
-
 
 if __name__ == '__main__':
 	app.run()
