@@ -8,16 +8,16 @@ import json
 
 app=Flask(__name__)
 app.secret_key = 'any random string'
-UPLOAD_FOLDER = './'
+UPLOAD_FOLDER = './files/'
 ALLOWED_EXTENSIONS = {'json'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# conn = sql.connect('database.db')
+conn = sql.connect('database.db')
 # curr=conn.cursor()
 # conn.execute('CREATE TABLE users (Name TEXT, Password REAL)')
 # curr.execute("INSERT INTO  users (Name, Password) VALUES (?,?)",("","",))
 # conn.commit()
-# conn.close()
+conn.close()
 
 def render_welcome():
 	global global_current_user
@@ -43,29 +43,32 @@ def homepage():
 def result():
 	try:
 		if request.method=='POST':
-			name=request.form['ID']
-			password=request.form['Password']
-			con=sql.connect("database.db")
-			cur = con.cursor()
-			val=None
-			cur.execute("SELECT * FROM users WHERE name = ?", (name,))
-			val=cur.fetchone()
-			if val[0] == None or val[1] != password:
+			select=request.form['select']
+			print(select)
+			if 'file' not in request.files:
 				return render_template("index.html")
-			else:	
-				global global_current_user
-				session['username']=name
-				global_current_user=name
-				global global_file_upload
-				data = None
-				if global_file_upload:
-					data,headers = render_welcome()
-					return render_template("welcome.html",data=data,headers=headers[1:])
-				else:
-					return render_template("welcome.html")
-			con.close()	
+			file = request.files['file']
+			filename = secure_filename(file.filename)
+			print(filename)
+			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			print(filename.split('.')[0])
+			render_data(filename)
+			
+			return render_template("index.html")
 	except:
-		con.rollback()
+		pass
+		# con.rollback()
+
+def render_data(filename):
+	with open(os.path.join(app.config['UPLOAD_FOLDER'], filename)) as f:
+		data = json.load(f)
+	df = pd.DataFrame(data)	
+	con = sql.connect('database.db')
+	cur=con.cursor()
+	df.to_sql(filename.split('.')[0],con)
+	con.commit()
+	con.close()
+
 
 if __name__ == '__main__':
 	app.run()
