@@ -1,10 +1,14 @@
 # chart-renderer
-A SPA that renders charts for JSON file
-Tech stack:
-1. Backend: Flask
-2. Frontend: HTML/CSS, Bootstrap
+A SPA that renders charts for JSON file. The folloing charts are supported:  
+- Sankey Chart
+- Parallel coordinates Chart
+- Simple Line Chart  
 
-## Modules reuqired  
+Tech stack used:
+- Backend: Flask
+- Frontend: HTML/CSS, Bootstrap
+
+## Modules required  
 * flask  
 * pandas  
 * plotly  
@@ -33,6 +37,6 @@ python main.py
 ```
 
 ## Issues:  
-In this application, an issue that arises is that on using multiple queries one after the other, the same image may be displayed over and over as the browser caches the image. Possible solutions for this incule:  
+In this application, an issue that arises is that on using multiple queries one after the other, the same image may be displayed over and over as the browser caches the image. For now, perform a hard refresh(ctrl/cmd + shift + R) to get the correct image. Possible solutions inculde:  
 * Adding timestamp to image name(found on stackoverflow)  
 * Keeping a counter as the image name which increases by 1 after every query  
