@@ -6,10 +6,11 @@ import json
 import plotly
 import plotly.graph_objects as go
 import numpy as np
+import os.path
+from os import path
 
 
 app=Flask(__name__)
-app.config["CACHE_TYPE"] = "null"
 app.secret_key = 'any random string'
 UPLOAD_FOLDER = './files/'
 ALLOWED_EXTENSIONS = {'json'}
@@ -46,7 +47,8 @@ def result():
 				path = makeParallel(filename, rowlimit)
 				return render_template('index.html',path=path)
 			elif select == 3:
-				makeSimple(filename, rowlimit)
+				path = makeSimple(filename, rowlimit)
+				return render_template('index.html',path=path)
 			return redirect(url_for('homepage'))
 	except:
 		pass
@@ -60,7 +62,6 @@ def makeSankey(filename, rowlimit):
 	# data
 	label = ["0","1","2","3","4","5","6","7","8","9","10"]
 	source = np.array(df['userId'].astype(int))
-	print(source)
 	target = np.array(df['id'].astype(int))
 	value= np.random.randint(1,10,rowlimit)
 	# links
@@ -73,7 +74,6 @@ def makeSankey(filename, rowlimit):
 	image_path = str(cur_dir) + "./static/styles/image.png"
 	try:
 		fig.write_image(image_path)
-		# plotly.offline.plot(fig, filename="./templates/content.html",auto_open=False)
 	except:
 		print('not working')	
 	return image_path
@@ -98,7 +98,6 @@ def makeParallel(filename, rowlimit):
 	)
 	)
 	cur_dir = str(os.path.abspath(os.getcwd())) + '/'
-	print(cur_dir)
 	image_path = str(cur_dir) + "./static/styles/image.png"
 	print(image_path)
 	try:
@@ -107,12 +106,25 @@ def makeParallel(filename, rowlimit):
 		print('not working')	
 	return image_path
 
-def makeSimple(filename, select, rowlimit):
-	pass
+def makeSimple(filename, rowlimit):
+	with open(os.path.join(app.config['UPLOAD_FOLDER'], filename)) as f:
+		data = json.load(f)
+	df = pd.DataFrame(data)	
+	df = df.head(rowlimit)
+	df = df[['userId','id',]]
+	source = np.array(df['userId'].astype(int))
+	target = np.array(df['id'].astype(int))
+	fig = go.Figure(data=go.Scatter(x = source, y = target))
+	cur_dir = str(os.path.abspath(os.getcwd())) + '/'
+	image_path = str(cur_dir) + "static/styles/image.png"
+	try:
+		fig.write_image(image_path)
+	except:
+		print('not working')	
+	return image_path
+
 
 if __name__ == '__main__':
-	# if not os.path.exists("images"):
-		# os.mkdir("images")
 	if not os.path.exists("files"):
 		os.mkdir("files")	
 	app.run()
