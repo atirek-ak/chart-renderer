@@ -5,11 +5,11 @@ import pandas as pd
 import json
 import plotly
 import plotly.graph_objects as go
-import plotly.io as pio
 import numpy as np
 
 
 app=Flask(__name__)
+app.config["CACHE_TYPE"] = "null"
 app.secret_key = 'any random string'
 UPLOAD_FOLDER = './files/'
 ALLOWED_EXTENSIONS = {'json'}
@@ -41,10 +41,10 @@ def result():
 			print(filename.split('.')[0])
 			if select == 1:
 				path = makeSankey(filename, rowlimit)
-				print(path)
 				return render_template('index.html',path=path)
 			elif select == 2:
-				makeParallel(filename, rowlimit)
+				path = makeParallel(filename, rowlimit)
+				return render_template('index.html',path=path)
 			elif select == 3:
 				makeSimple(filename, rowlimit)
 			return redirect(url_for('homepage'))
@@ -57,7 +57,6 @@ def makeSankey(filename, rowlimit):
 	df = pd.DataFrame(data)	
 	df = df.head(rowlimit)
 	df = df[['userId','id',]]
-	print(df)
 	# data
 	label = ["0","1","2","3","4","5","6","7","8","9","10"]
 	source = np.array(df['userId'].astype(int))
@@ -71,9 +70,7 @@ def makeSankey(filename, rowlimit):
 	#plot
 	fig = go.Figure(data)
 	cur_dir = str(os.path.abspath(os.getcwd())) + '/'
-	print(cur_dir)
 	image_path = str(cur_dir) + "./static/styles/image.png"
-	print(image_path)
 	try:
 		fig.write_image(image_path)
 		# plotly.offline.plot(fig, filename="./templates/content.html",auto_open=False)
@@ -83,14 +80,39 @@ def makeSankey(filename, rowlimit):
 
 
 def makeParallel(filename, rowlimit):
-	pass
+	with open(os.path.join(app.config['UPLOAD_FOLDER'], filename)) as f:
+		data = json.load(f)
+	df = pd.DataFrame(data)	
+	df = df.head(rowlimit)
+	df = df[['userId','id',]]
+	source = np.array(df['userId'].astype(int))
+	target = np.array(df['id'].astype(int))
+	fig = go.Figure(data=go.Parcoords(
+    	line_color='green',
+    	dimensions=list([
+    	    dict(range=[1, max(source)],
+    	         label='userId', values=source),
+    	    dict(range=[1, max(target)],
+    	         label='ID', values=target),
+    	])
+	)
+	)
+	cur_dir = str(os.path.abspath(os.getcwd())) + '/'
+	print(cur_dir)
+	image_path = str(cur_dir) + "./static/styles/image.png"
+	print(image_path)
+	try:
+		fig.write_image(image_path)
+	except:
+		print('not working')	
+	return image_path
 
 def makeSimple(filename, select, rowlimit):
 	pass
 
 if __name__ == '__main__':
-	if not os.path.exists("images"):
-		os.mkdir("images")
+	# if not os.path.exists("images"):
+		# os.mkdir("images")
 	if not os.path.exists("files"):
 		os.mkdir("files")	
 	app.run()
