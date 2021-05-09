@@ -9,11 +9,7 @@ pipenv shell
 
 
 ## Modules reuqired  
-* Flask  
-``` 
-pipenv install flask 
-```
-* Pandas 
-``` 
-pipenv install pandas
-```
+* flask  
+* pandas  
+* plotly  
+* kaleido  

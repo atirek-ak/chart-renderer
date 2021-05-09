@@ -1,10 +1,13 @@
-from flask import Flask, redirect, url_for, request, render_template, session, flash
-import sqlite3 as sql
-from random import randint
+from flask import Flask, redirect, url_for, request, render_template
 import sys, os, math
 from werkzeug.utils import secure_filename
 import pandas as pd
 import json
+import plotly
+import plotly.graph_objects as go
+import plotly.io as pio
+import numpy as np
+
 
 app=Flask(__name__)
 app.secret_key = 'any random string'
@@ -12,16 +15,9 @@ UPLOAD_FOLDER = './files/'
 ALLOWED_EXTENSIONS = {'json'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# conn = sql.connect('database.db')
-# curr=conn.cursor()
-# conn.execute('CREATE TABLE users (Name TEXT, Password REAL)')
-# curr.execute("INSERT INTO  users (Name, Password) VALUES (?,?)",("","",))
-# conn.commit()
-# conn.close()
-
 @app.route('/')
 def homepage():
-	return render_template('index.html')
+	return render_template('index.html',path=None)
 
 
 @app.route('/',methods=['POST'])
@@ -43,10 +39,10 @@ def result():
 			print(filename)
 			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 			print(filename.split('.')[0])
-			# renderData(filename)
 			if select == 1:
-				
-				makeSankey(filename, rowlimit)
+				path = makeSankey(filename, rowlimit)
+				print(path)
+				return render_template('index.html',path=path)
 			elif select == 2:
 				makeParallel(filename, rowlimit)
 			elif select == 3:
@@ -55,22 +51,36 @@ def result():
 	except:
 		pass
 
-def renderData(filename):
-	with open(os.path.join(app.config['UPLOAD_FOLDER'], filename)) as f:
-		data = json.load(f)
-	df = pd.DataFrame(data)	
-	con = sql.connect('database.db')
-	cur=con.cursor()
-	df.to_sql(filename.split('.')[0],con)
-	con.commit()
-	con.close()
-
 def makeSankey(filename, rowlimit):
 	with open(os.path.join(app.config['UPLOAD_FOLDER'], filename)) as f:
 		data = json.load(f)
 	df = pd.DataFrame(data)	
 	df = df.head(rowlimit)
+	df = df[['userId','id',]]
 	print(df)
+	# data
+	label = ["0","1","2","3","4","5","6","7","8","9","10"]
+	source = np.array(df['userId'].astype(int))
+	print(source)
+	target = np.array(df['id'].astype(int))
+	value= np.random.randint(1,10,rowlimit)
+	# links
+	link = dict(source = source, target = target, value = value)
+	node = dict(label=label, pad=50, thickness=5)
+	data = go.Sankey(link = link, node=node)
+	#plot
+	fig = go.Figure(data)
+	cur_dir = str(os.path.abspath(os.getcwd())) + '/'
+	print(cur_dir)
+	image_path = str(cur_dir) + "./static/styles/image.png"
+	print(image_path)
+	try:
+		fig.write_image(image_path)
+		# plotly.offline.plot(fig, filename="./templates/content.html",auto_open=False)
+	except:
+		print('not working')	
+	return image_path
+
 
 def makeParallel(filename, rowlimit):
 	pass
@@ -79,4 +89,8 @@ def makeSimple(filename, select, rowlimit):
 	pass
 
 if __name__ == '__main__':
+	if not os.path.exists("images"):
+		os.mkdir("images")
+	if not os.path.exists("files"):
+		os.mkdir("files")	
 	app.run()

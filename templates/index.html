@@ -2,6 +2,7 @@
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+<!-- <script src="jquery.js"></script>  -->
 
 <!-- left panel -->
 <div class="sidenav">
@@ -31,6 +32,8 @@
 <!-- right panel -->
 <div class="main">
    <div class="col-md-6 col-sm-12">
-      
+      {% if path %}
+         <img src="{{url_for('static', filename='styles/image.png')}}">
+      {% endif %}
    </div>
 </div>
